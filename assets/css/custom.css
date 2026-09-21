@@ -1,0 +1,111 @@
+/* General Layout & Typography */
+body {
+  background-color: #f4f6f9;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Header & Banner Styles */
+.hero-banner {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  color: white;
+  padding: 40px 20px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+}
+
+.top-banner {
+  background-color: #ffffff;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #e3e6f0;
+}
+
+/* Experiment Cards (index.html) */
+.experiment-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid #e3e6f0;
+}
+
+.experiment-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.badge-topic {
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Psychophysics Canvas & Stimuli */
+.stimulus-canvas {
+  position: relative;
+  width: 100%;
+  height: 520px;
+  background-color: #ffffff;
+  border: 2px solid #ced4da;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.fixation-cross {
+  position: absolute;
+  font-size: 32px;
+  font-weight: bold;
+  color: #dc3545;
+  transform: translate(-50%, -50%);
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  width: 40px;
+  height: 40px;
+}
+
+.letter-stimulus {
+  position: absolute;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  color: #000000;
+  line-height: 1;
+  text-align: center;
+  transform: translate(-50%, -50%);
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.probe-dot {
+  position: absolute;
+  background-color: #000000;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  user-select: none;
+  transition: all 0.03s ease-out;
+}
+
+.bs-point {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: #dc3545;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  user-select: none;
+}
+
+/* Calibration Modal Widget */
+.calib-card {
+  background-color: #0d6efd;
+  height: 120px;
+  border-radius: 6px;
+  margin: 15px auto;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}

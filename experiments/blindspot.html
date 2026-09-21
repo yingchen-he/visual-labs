@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blind Spot Mapping Experiment</title>
+  <!-- Bootstrap 5 CSS & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <!-- Shared Styles -->
+  <link rel="stylesheet" href="../assets/css/custom.css">
+</head>
+
+<body>
+
+  <div class="container my-4">
+    <!-- Shared Navigation Banner -->
+    <div class="top-banner shadow-sm">
+      <div class="row align-items-center">
+        <div class="col-lg-6 mb-2 mb-lg-0">
+          <a href="../index.html" class="btn btn-outline-secondary btn-sm me-2">
+            <i class="bi bi-arrow-left"></i> Main Menu
+          </a>
+          <span class="fs-5 fw-bold text-dark align-middle">Blind Spot Mapping</span>
+        </div>
+        <div class="col-lg-6 text-lg-end">
+          <a href="acuity.html" class="btn btn-outline-secondary btn-sm me-2">
+            ← Acuity Lab
+          </a>
+          <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#calibrationModal">
+            <i class="bi bi-ruler"></i> Screen Calibration
+          </button>
+          <span id="calibBadge" class="badge bg-warning text-dark p-2 ms-2">Uncalibrated (57 cm)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs" id="labTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="blindspot-tab" data-bs-toggle="tab" data-bs-target="#blindspotPane"
+          type="button" role="tab">1. Blind Spot Mapping</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logsPane" type="button"
+          role="tab">2. Data Log</button>
+      </li>
+    </ul>
+
+    <div class="tab-content bg-white border border-top-0 p-4 rounded-bottom shadow-sm" id="labTabsContent">
+      <!-- TAB 1: BLIND SPOT MAPPER -->
+      <div class="tab-pane fade show active" id="blindspotPane" role="tabpanel">
+        
+        <!-- 1. Full-Width Instructions at Top -->
+        <div class="bg-light p-3 rounded mb-4 border shadow-sm">
+          <h5 class="mb-2"><i class="bi bi-info-circle me-1"></i>Test Instructions</h5>
+          <ol class="small text-muted mb-0 ps-3">
+            <li>Cover your <strong>LEFT eye</strong> and fixate on the red cross (+). Your line of sight should be perpendicular to the screen.</li>
+            <li>Adjust the <strong>Starting Center Position</strong> until the dot fully disappears.</li>
+            <li>Select a direction and click <strong>Move Forward</strong> until the dot re-appears. Record the boundary.</li>
+            <li>Go back to center and record points for all <strong>8 directions</strong> to unlock polygon boundary drawing.</li>
+            <li>Once finished, switch to cover your <strong>RIGHT eye</strong> and change the settings accordingly.</li>
+          </ol>
+        </div>
+
+        <!-- 2. Main Row: Canvas on Left, Compact Settings on Right -->
+        <div class="row g-3">
+          <!-- Canvas Side (Expanded Width) -->
+          <div class="col-md-8 col-lg-9">
+            <h5>Perimetry Canvas</h5>
+            <div id="stimulusCanvas" class="stimulus-canvas"></div>
+            <div id="bsStatsBox" class="mt-3"></div>
+          </div>
+
+          <!-- Settings & Controls Side (Compact Width) -->
+          <div class="col-md-4 col-lg-3">
+            <div class="card p-3 shadow-sm bg-light border">
+              <h5 class="mb-3 fs-6 fw-bold">Setup & Probe Controls</h5>
+              
+              <div class="mb-2">
+                <label class="form-label form-label-sm mb-1">Eye Being Tested:</label>
+                <select id="t2_eye" class="form-select form-select-sm">
+                  <option value="Right">Right Eye (Left Covered)</option>
+                  <option value="Left">Left Eye (Right Covered)</option>
+                </select>
+              </div>
+              
+              <div class="mb-2">
+                <label class="form-label form-label-sm mb-1">Starting Center Position (deg):</label>
+                <input type="number" id="t2_startX" class="form-control form-control-sm" value="15" min="5" max="25" step="0.5">
+              </div>
+              
+              <div class="mb-2">
+                <label class="form-label form-label-sm mb-1">Probe Diameter (deg):</label>
+                <input type="number" id="t2_probeSize" class="form-control form-control-sm" value="0.2" min="0.1" max="2" step="0.1">
+              </div>
+              
+              <hr class="my-2">
+              
+              <div class="mb-2">
+                <label class="form-label form-label-sm mb-1">Movement Direction:</label>
+                <select id="t2_direction" class="form-select form-select-sm">
+                  <option value="Right">Right</option>
+                  <option value="Upper-Right">Upper-Right</option>
+                  <option value="Up">Up</option>
+                  <option value="Upper-Left">Upper-Left</option>
+                  <option value="Left">Left</option>
+                  <option value="Lower-Left">Lower-Left</option>
+                  <option value="Down">Down</option>
+                  <option value="Lower-Right">Lower-Right</option>
+                </select>
+              </div>
+              
+              <div class="row g-2 mb-2">
+                <div class="col-6"><button id="t2_btnFwd" class="btn btn-primary btn-sm w-100">Move Forward</button></div>
+                <div class="col-6"><button id="t2_btnBack" class="btn btn-secondary btn-sm w-100">Move Back</button></div>
+              </div>
+              <button id="t2_btnCenter" class="btn btn-outline-dark btn-sm w-100 mb-2">Back to Center</button>
+              
+              <hr class="my-2">
+              
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="t2_showPoints">
+                <label class="form-check-label small fw-semibold" for="t2_showPoints">Show Recorded Points</label>
+              </div>
+              
+              <button id="t2_btnRecord" class="btn btn-success btn-sm w-100 mb-2">Record Boundary Point</button>
+              
+              <div class="row g-2">
+                <div class="col-6"><button id="t2_btnDraw" class="btn btn-info btn-sm w-100" disabled>Draw Boundary</button></div>
+                <div class="col-6"><button id="t2_btnClear" class="btn btn-warning btn-sm w-100">Clear Points</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TAB 2: DATA LOGS -->
+      <div class="tab-pane fade" id="logsPane" role="tabpanel">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="m-0">Blind Spot Boundary Coordinates</h4>
+          <button class="btn btn-sm btn-outline-success" onclick="exportCSV()"><i class="bi bi-download me-1"></i>Export CSV</button>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-striped table-bordered" id="tableBlindSpot">
+            <thead>
+              <tr>
+                <th>Point ID</th>
+                <th>Eye</th>
+                <th>Direction</th>
+                <th>X (deg)</th>
+                <th>Y (deg)</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen Calibration Modal -->
+  <div class="modal fade" id="calibrationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Screen Calibration</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Place a standard physical credit card against your screen.</p>
+          <p>Adjust slider until the blue box matches the physical width of your card.</p>
+          <label class="form-label">Card Width on Screen (pixels):</label>
+          <input type="range" id="calibSlider" class="form-range" min="150" max="600" value="300">
+          <div id="cardBox" class="calib-card" style="width: 300px;">Align Credit Card Here</div>
+          <div class="mt-3">
+            <label class="form-label">Viewing Distance (cm):</label>
+            <input type="number" id="calibViewDist" class="form-control" value="57" min="20" max="200">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-success" id="btnSaveCalib">Save Calibration</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../assets/js/lab-utils.js"></script>
+  <script>
+    const ALL_DIRECTIONS = ["Right", "Upper-Right", "Up", "Upper-Left", "Left", "Lower-Left", "Down", "Lower-Right"];
+    const DIR_ANGLES = {
+      'Right': 0, 'Upper-Right': Math.PI / 4, 'Up': Math.PI / 2, 'Upper-Left': 3 * Math.PI / 4,
+      'Left': Math.PI, 'Lower-Left': -3 * Math.PI / 4, 'Down': -Math.PI / 2, 'Lower-Right': -Math.PI / 4
+    };
+
+    const state = {probeXDeg: 15, probeYDeg: 0, drawBoundary: false, bsPoints: [], bsCounter: 0};
+
+    // DOM Elements
+    const calibSlider = document.getElementById('calibSlider');
+    const cardBox = document.getElementById('cardBox');
+    const calibViewDist = document.getElementById('calibViewDist');
+    const calibBadge = document.getElementById('calibBadge');
+    const calibModalEl = document.getElementById('calibrationModal');
+    const t2Eye = document.getElementById('t2_eye');
+    const t2StartX = document.getElementById('t2_startX');
+    const t2ProbeSize = document.getElementById('t2_probeSize');
+    const t2Direction = document.getElementById('t2_direction');
+    const t2ShowPoints = document.getElementById('t2_showPoints');
+    const t2BtnDraw = document.getElementById('t2_btnDraw');
+    const canvas = document.getElementById('stimulusCanvas');
+    const bsStatsBox = document.getElementById('bsStatsBox');
+
+    // Load Shared Calibration
+    LabUtils.loadCalibration(calibSlider, cardBox, calibViewDist, calibBadge);
+
+    // Calibration Event Handlers
+    calibSlider.addEventListener('input', () => {cardBox.style.width = calibSlider.value + 'px';});
+    document.getElementById('btnSaveCalib').addEventListener('click', () => {
+      LabUtils.saveCalibration(calibSlider, calibViewDist, calibBadge, calibModalEl);
+      renderCanvas();
+    });
+
+    function getCenterX() {
+      const baseVal = Math.abs(parseFloat(t2StartX.value));
+      return t2Eye.value === 'Right' ? baseVal : -baseVal;
+    }
+
+    function resetProbeToCenter() {
+      state.probeXDeg = getCenterX();
+      state.probeYDeg = 0;
+      renderCanvas();
+    }
+
+    t2Eye.addEventListener('change', resetProbeToCenter);
+    t2StartX.addEventListener('input', resetProbeToCenter);
+    t2ProbeSize.addEventListener('input', renderCanvas);
+    t2ShowPoints.addEventListener('change', renderCanvas);
+
+    function moveProbe(stepMultiplier) {
+      const step = 0.25 * stepMultiplier;
+      const angle = DIR_ANGLES[t2Direction.value];
+      state.probeXDeg += step * Math.cos(angle);
+      state.probeYDeg += step * Math.sin(angle);
+      renderCanvas();
+    }
+
+    document.getElementById('t2_btnFwd').addEventListener('click', () => moveProbe(1));
+    document.getElementById('t2_btnBack').addEventListener('click', () => moveProbe(-1));
+    document.getElementById('t2_btnCenter').addEventListener('click', resetProbeToCenter);
+
+    document.getElementById('t2_btnRecord').addEventListener('click', () => {
+      const currentEye = t2Eye.value;
+      const currentDir = t2Direction.value;
+
+      // Check if a point for this direction and eye has already been recorded
+      const existingIndex = state.bsPoints.findIndex(
+        p => p.eye === currentEye && p.direction === currentDir
+      );
+
+      state.bsCounter++;
+      const newPoint = {
+        id: state.bsCounter,
+        eye: currentEye,
+        direction: currentDir,
+        x: state.probeXDeg,
+        y: state.probeYDeg
+      };
+
+      if (existingIndex !== -1) {
+        // Overwrite existing point with the latest recorded position
+        state.bsPoints[existingIndex] = newPoint;
+      } else {
+        // Add new direction point
+        state.bsPoints.push(newPoint);
+      }
+
+      updateBlindSpotTable();
+      renderCanvas();
+    });
+
+    t2BtnDraw.addEventListener('click', () => {
+      state.drawBoundary = !state.drawBoundary;
+      renderCanvas();
+    });
+
+    document.getElementById('t2_btnClear').addEventListener('click', () => {
+      state.bsPoints = [];
+      state.bsCounter = 0;
+      state.drawBoundary = false;
+      updateBlindSpotTable();
+      renderCanvas();
+    });
+
+    function getMeasuredDirections() {
+      const currentEyePoints = state.bsPoints.filter(p => p.eye === t2Eye.value);
+      const dirs = new Set(currentEyePoints.map(p => p.direction));
+      return ALL_DIRECTIONS.filter(d => dirs.has(d));
+    }
+
+    function renderCanvas() {
+      const currentEyePoints = state.bsPoints.filter(p => p.eye === t2Eye.value);
+      const measuredDirs = getMeasuredDirections();
+      const isComplete = measuredDirs.length === 8;
+
+      t2BtnDraw.disabled = !isComplete;
+      if (!isComplete) state.drawBoundary = false;
+
+      const centerY = 260;
+      const fixX = t2Eye.value === 'Right' ? 100 : 700;
+      const probeX = fixX + LabUtils.degToPx(state.probeXDeg);
+      const probeY = centerY - LabUtils.degToPx(state.probeYDeg);
+      const probeSizePx = Math.abs(LabUtils.degToPx(parseFloat(document.getElementById('t2_probeSize').value)));
+
+      let html = `
+        <div class="fixation-cross" style="left:${fixX}px; top:${centerY}px;">+</div>
+        <div class="probe-dot" style="left:${probeX}px; top:${probeY}px; width:${probeSizePx}px; height:${probeSizePx}px;"></div>
+      `;
+
+      if (t2ShowPoints.checked) {
+        currentEyePoints.forEach(pt => {
+          const px = fixX + LabUtils.degToPx(pt.x);
+          const py = centerY - LabUtils.degToPx(pt.y);
+          html += `<div class="bs-point" style="left:${px}px; top:${py}px;"></div>`;
+        });
+      }
+
+      if (state.drawBoundary && isComplete) {
+        const cx = currentEyePoints.reduce((s, p) => s + p.x, 0) / currentEyePoints.length;
+        const cy = currentEyePoints.reduce((s, p) => s + p.y, 0) / currentEyePoints.length;
+        const sorted = [...currentEyePoints].sort((a, b) => Math.atan2(a.y - cy, a.x - cx) - Math.atan2(b.y - cy, b.x - cx));
+
+        const polyPoints = sorted.map(p => `${fixX + LabUtils.degToPx(p.x)},${centerY - LabUtils.degToPx(p.y)}`).join(' ');
+        html += `
+          <svg style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;">
+            <polygon points="${polyPoints}" fill="rgba(220, 53, 69, 0.25)" stroke="#dc3545" stroke-width="2"/>
+          </svg>
+        `;
+      }
+
+      canvas.innerHTML = html;
+
+      // Build Results & Statistics Section
+      let statsHTML = '';
+      if (!isComplete) {
+        statsHTML = `
+          <div class="alert alert-info mb-3 py-2">
+            <strong>Progress:</strong> Recorded ${measuredDirs.length}/8 directions for the <strong>${t2Eye.value} Eye</strong>.
+          </div>`;
+      } else {
+        const xs = currentEyePoints.map(p => p.x);
+        const ys = currentEyePoints.map(p => p.y);
+        const meanX = (xs.reduce((a, b) => a + b, 0) / xs.length).toFixed(2);
+        const meanY = (ys.reduce((a, b) => a + b, 0) / ys.length).toFixed(2);
+        const width = (Math.max(...xs) - Math.min(...xs)).toFixed(2);
+        const height = (Math.max(...ys) - Math.min(...ys)).toFixed(2);
+        const area = (Math.PI * (width / 2) * (height / 2)).toFixed(2);
+
+        statsHTML = `
+          <div class="card bg-light p-3 mb-3">
+            <h5 class="card-title">Blind Spot Mapping Results (${t2Eye.value} Eye)</h5>
+            <ul class="mb-0">
+              <li><strong>Center Location:</strong> ${meanX}° horizontal, ${meanY}° vertical</li>
+              <li><strong>Horizontal Width:</strong> ${width}° (Typical average: ~5°)</li>
+              <li><strong>Vertical Height:</strong> ${height}° (Typical average: ~7°)</li>
+              <li><strong>Estimated Area:</strong> ${area} deg²</li>
+            </ul>
+          </div>`;
+      }
+
+      // Generate Direction Checklist Badges
+      const checklistHTML = ALL_DIRECTIONS.map(dir => {
+        const pt = currentEyePoints.find(p => p.direction === dir);
+        if (pt) {
+          return `
+            <span class="badge bg-success-subtle text-success border border-success-subtle p-2 me-1 mb-1">
+              <i class="bi bi-check-circle-fill me-1"></i>${dir} (${pt.x.toFixed(1)}°, ${pt.y.toFixed(1)}°)
+            </span>`;
+        } else {
+          return `
+            <span class="badge bg-light text-muted border p-2 me-1 mb-1">
+              <i class="bi bi-dash-circle me-1"></i>${dir} (Pending)
+            </span>`;
+        }
+      }).join('');
+
+      // Render combined stats and checklist panel
+      bsStatsBox.innerHTML = `
+        ${statsHTML}
+        <div class="card p-3 shadow-sm">
+          <h6 class="fw-bold mb-2">Direction Checklist (${t2Eye.value} Eye):</h6>
+          <div class="d-flex flex-wrap">
+            ${checklistHTML}
+          </div>
+        </div>
+      `;
+    }
+
+    function updateBlindSpotTable() {
+      const tbody = document.querySelector('#tableBlindSpot tbody');
+      tbody.innerHTML = state.bsPoints.map(p => `
+        <tr>
+          <td>${p.id}</td>
+          <td>${p.eye}</td>
+          <td>${p.direction}</td>
+          <td>${p.x.toFixed(2)}</td>
+          <td>${p.y.toFixed(2)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function exportCSV() {
+      if (state.bsPoints.length === 0) return alert('No points available to export.');
+      let csv = 'Point_ID,Eye,Direction,X_deg,Y_deg\n';
+      state.bsPoints.forEach(p => {csv += `${p.id},${p.eye},${p.direction},${p.x.toFixed(2)},${p.y.toFixed(2)}\n`;});
+      LabUtils.downloadCSV(`blind_spot_data_${Date.now()}.csv`, csv);
+    }
+
+    // Initial load
+    renderCanvas();
+  </script>
+</body>
+
+</html>

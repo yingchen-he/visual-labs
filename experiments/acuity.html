@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visual Acuity & Crowding Experiment</title>
+  <!-- Bootstrap 5 CSS & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <!-- Shared Styles -->
+  <link rel="stylesheet" href="../assets/css/custom.css">
+</head>
+<body>
+
+<div class="container my-4">
+  <!-- Shared Navigation Banner -->
+  <div class="top-banner shadow-sm">
+    <div class="row align-items-center">
+      <div class="col-lg-6 mb-2 mb-lg-0">
+        <a href="../index.html" class="btn btn-outline-secondary btn-sm me-2">
+          <i class="bi bi-arrow-left"></i> Main Menu
+        </a>
+        <span class="fs-5 fw-bold text-dark align-middle">Visual Acuity & Crowding</span>
+      </div>
+      <div class="col-lg-6 text-lg-end">
+        <a href="blindspot.html" class="btn btn-outline-secondary btn-sm me-2">
+          Blind Spot Lab <i class="bi bi-arrow-right"></i>
+        </a>
+        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#calibrationModal">
+          <i class="bi bi-ruler"></i> Screen Calibration
+        </button>
+        <span id="calibBadge" class="badge bg-warning text-dark p-2 ms-2">Uncalibrated (57 cm)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <ul class="nav nav-tabs" id="labTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="acuity-tab" data-bs-toggle="tab" data-bs-target="#acuityPane" type="button" role="tab">1. Acuity & Crowding Experiment</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logsPane" type="button" role="tab">2. Data Log</button>
+    </li>
+  </ul>
+
+  <div class="tab-content bg-white border border-top-0 p-4 rounded-bottom shadow-sm" id="labTabsContent">
+    <!-- TAB 1: ACUITY & CROWDING EXPERIMENT -->
+    <div class="tab-pane fade show active" id="acuityPane" role="tabpanel">
+      
+      <!-- 1. Full-Width Instructions at Top -->
+      <div class="bg-light p-3 rounded mb-4 border shadow-sm">
+        <h5 class="mb-2"><i class="bi bi-info-circle me-1"></i>Test Instructions</h5>
+        <ol class="small text-muted mb-0 ps-3">
+          <li>Keep your eyes fixated on the red cross (<strong>+</strong>) throughout the trial. Your line of sight should be perpendicular to the screen.</li>
+          <li>Configure visual eccentricity, target size, and presentation duration in the settings panel.</li>
+          <li>Click <strong>Start Trial</strong> to flash the stimulus, then record your response offline.</li>
+          <li>Enable <strong>Flankers</strong> to test visual crowding in your peripheral vision.</li>
+        </ol>
+      </div>
+
+      <!-- 2. Main Row: Canvas on Left, Compact Settings on Right -->
+      <div class="row g-3">
+        <!-- Canvas Side (Expanded Width) -->
+        <div class="col-md-8 col-lg-9">
+          <h5>Visual Stimulus Canvas</h5>
+          <p class="text-muted small mb-2">Fixate on the red cross (+). Click 'Start Trial' to flash target letter.</p>
+          <div id="stimulusCanvas" class="stimulus-canvas">
+            <div class="fixation-cross" style="left:100px; top:260px;">+</div>
+          </div>
+        </div>
+
+        <!-- Settings Side (Compact Width) -->
+        <div class="col-md-4 col-lg-3">
+          <div class="card p-3 shadow-sm bg-light border">
+            <h5 class="mb-3 fs-6 fw-bold">Stimulus Settings</h5>
+            
+            <div class="mb-2">
+              <label class="form-label form-label-sm mb-1">Visual Eccentricity (deg right):</label>
+              <input type="number" id="t1_eccentricity" class="form-control form-control-sm" value="2.5" min="0" max="20" step="0.5">
+            </div>
+            
+            <div class="mb-2">
+              <label class="form-label form-label-sm mb-1">Target Letter Size (deg):</label>
+              <input type="number" id="t1_letterSize" class="form-control form-control-sm" value="0.5" min="0.1" max="5" step="0.1">
+            </div>
+            
+            <div class="mb-2">
+              <label class="form-label form-label-sm mb-1">Presentation Duration (ms):</label>
+              <input type="number" id="t1_duration" class="form-control form-control-sm" value="200" min="20" max="2000" step="10">
+            </div>
+            
+            <div class="form-check my-2">
+              <input class="form-check-input" type="checkbox" id="t1_enableCrowding">
+              <label class="form-check-label small fw-semibold" for="t1_enableCrowding">Enable Flankers (Crowding Test)</label>
+            </div>
+            
+            <div class="mb-3 d-none" id="t1_flankerGroup">
+              <label class="form-label form-label-sm mb-1">Flanker Distance (deg, center-to-center):</label>
+              <input type="number" id="t1_flankerDist" class="form-control form-control-sm" value="1" min="0.2" max="10" step="0.1">
+            </div>
+            
+            <hr class="my-2">
+            
+            <button id="t1_btnStart" class="btn btn-primary btn-sm w-100 mb-2">Start Trial</button>
+            <button id="t1_btnReset" class="btn btn-outline-secondary btn-sm w-100">Reset Logs</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB 2: DATA LOGS -->
+    <div class="tab-pane fade" id="logsPane" role="tabpanel">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="m-0">Acuity & Crowding Trial History</h4>
+        <button class="btn btn-sm btn-outline-success" onclick="exportCSV()"><i class="bi bi-download me-1"></i>Export CSV</button>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-striped table-bordered" id="tableAcuity">
+          <thead>
+            <tr>
+              <th>Trial ID</th>
+              <th>Timestamp</th>
+              <th>Eccentricity (deg)</th>
+              <th>Letter Size (deg)</th>
+              <th>Duration (ms)</th>
+              <th>Crowding</th>
+              <th>Flanker Dist (deg)</th>
+              <th>Target</th>
+              <th>Top Flanker</th>
+              <th>Bottom Flanker</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen Calibration Modal -->
+<div class="modal fade" id="calibrationModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Screen Calibration</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Place a standard physical credit card against your screen.</p>
+        <p>Adjust slider until the blue box matches the physical width of your card.</p>
+        <label class="form-label">Card Width on Screen (pixels):</label>
+        <input type="range" id="calibSlider" class="form-range" min="150" max="600" value="300">
+        <div id="cardBox" class="calib-card" style="width: 300px;">Align Credit Card Here</div>
+        <div class="mt-3">
+          <label class="form-label">Viewing Distance (cm):</label>
+          <input type="number" id="calibViewDist" class="form-control" value="57" min="20" max="200">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success" id="btnSaveCalib">Save Calibration</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/lab-utils.js"></script>
+<script>
+  const SLOAN_LETTERS = ["C", "D", "E", "F", "H", "K", "N", "O", "P", "V", "Z"];
+  const state = { acuityLogs: [], acuityCounter: 0 };
+
+  // DOM Elements
+  const calibSlider = document.getElementById('calibSlider');
+  const cardBox = document.getElementById('cardBox');
+  const calibViewDist = document.getElementById('calibViewDist');
+  const calibBadge = document.getElementById('calibBadge');
+  const calibModalEl = document.getElementById('calibrationModal');
+  const t1EnableCrowding = document.getElementById('t1_enableCrowding');
+  const t1FlankerGroup = document.getElementById('t1_flankerGroup');
+  const canvas = document.getElementById('stimulusCanvas');
+
+  // Load Shared Calibration
+  LabUtils.loadCalibration(calibSlider, cardBox, calibViewDist, calibBadge);
+
+  // Calibration Event Handlers
+  calibSlider.addEventListener('input', () => { cardBox.style.width = calibSlider.value + 'px'; });
+  document.getElementById('btnSaveCalib').addEventListener('click', () => {
+    LabUtils.saveCalibration(calibSlider, calibViewDist, calibBadge, calibModalEl);
+  });
+
+  // UI Event Handlers
+  t1EnableCrowding.addEventListener('change', () => {
+    t1FlankerGroup.classList.toggle('d-none', !t1EnableCrowding.checked);
+  });
+
+  document.getElementById('t1_btnStart').addEventListener('click', () => {
+    const ecc = parseFloat(document.getElementById('t1_eccentricity').value);
+    const letterSize_record = parseFloat(document.getElementById('t1_letterSize').value);
+    const letterSize = letterSize_record/0.6;
+    const duration = parseInt(document.getElementById('t1_duration').value);
+    const crowding = t1EnableCrowding.checked;
+    const flankerDist = parseFloat(document.getElementById('t1_flankerDist').value);
+
+    const sampled = [...SLOAN_LETTERS].sort(() => 0.5 - Math.random()).slice(0, 3);
+    const target = sampled[0];
+    const topFlanker = sampled[1];
+    const bottomFlanker = sampled[2];
+
+    state.acuityCounter++;
+    state.acuityLogs.push({
+      id: state.acuityCounter,
+      time: new Date().toLocaleTimeString(),
+      ecc, letterSize, letterSize_record, duration, crowding,
+      flankerDist: crowding ? flankerDist : 'N/A',
+      target,
+      topFlanker: crowding ? topFlanker : 'N/A',
+      bottomFlanker: crowding ? bottomFlanker : 'N/A'
+    });
+    updateAcuityTable();
+
+    const fixX = 100;
+    const centerY = 260;
+    const eccPx = LabUtils.degToPx(ecc);
+    const sizePx = LabUtils.degToPx(letterSize);
+    const flankerDistPx = LabUtils.degToPx(flankerDist);
+    const targetX = fixX + eccPx;
+
+    let html = `<div class="fixation-cross" style="left:${fixX}px; top:${centerY}px;">+</div>`;
+    html += `<div class="letter-stimulus" style="left:${targetX}px; top:${centerY}px; font-size:${sizePx}px; width:${sizePx}px; height:${sizePx}px;">${target}</div>`;
+
+    if (crowding) {
+      html += `<div class="letter-stimulus" style="left:${targetX}px; top:${centerY - flankerDistPx}px; font-size:${sizePx}px; width:${sizePx}px; height:${sizePx}px;">${topFlanker}</div>`;
+      html += `<div class="letter-stimulus" style="left:${targetX}px; top:${centerY + flankerDistPx}px; font-size:${sizePx}px; width:${sizePx}px; height:${sizePx}px;">${bottomFlanker}</div>`;
+    }
+
+    canvas.innerHTML = html;
+    setTimeout(() => {
+      canvas.innerHTML = `<div class="fixation-cross" style="left:${fixX}px; top:${centerY}px;">+</div>`;
+    }, duration);
+  });
+
+  document.getElementById('t1_btnReset').addEventListener('click', () => {
+    state.acuityLogs = [];
+    state.acuityCounter = 0;
+    updateAcuityTable();
+  });
+
+  function updateAcuityTable() {
+    const tbody = document.querySelector('#tableAcuity tbody');
+    tbody.innerHTML = state.acuityLogs.map(l => `
+      <tr>
+        <td>${l.id}</td>
+        <td>${l.time}</td>
+        <td>${l.ecc}</td>
+        <td>${l.letterSize_record}</td>
+        <td>${l.duration}</td>
+        <td>${l.crowding ? 'Yes' : 'No'}</td>
+        <td>${l.flankerDist}</td>
+        <td><strong>${l.target}</strong></td>
+        <td>${l.topFlanker}</td>
+        <td>${l.bottomFlanker}</td>
+      </tr>
+    `).join('');
+  }
+
+  function exportCSV() {
+    if (state.acuityLogs.length === 0) return alert('No logs available to export.');
+    let csv = 'Trial_ID,Timestamp,Eccentricity_deg,Letter_Size_deg,Duration_ms,Crowding,Flanker_Dist_deg,Target,Top_Flanker,Bottom_Flanker\n';
+    state.acuityLogs.forEach(l => {
+      csv += `${l.id},${l.time},${l.ecc},${l.letterSize_record},${l.duration},${l.crowding},${l.flankerDist},${l.target},${l.topFlanker},${l.bottomFlanker}\n`;
+    });
+    LabUtils.downloadCSV(`acuity_crowding_data_${Date.now()}.csv`, csv);
+  }
+</script>
+</body>
+</html>
