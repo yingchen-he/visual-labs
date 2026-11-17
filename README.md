@@ -6,19 +6,25 @@ A modular, web-based suite of interactive vision science experiments designed fo
 
 ## 🧪 Currently Available Experiments
 
-### 1. Visual Acuity Testing (`pages/acuity.html`)
+### 1. Visual Acuity Testing (`experiments/acuity.html`)
 * **Objective**: Assess spatial resolution limits using standardized optotypes.
 * **Features**:
   * Calibrated optotype scaling dynamically linked to viewing distance.
   * Automated scoring with logMAR and Snellen equivalents.
 
-### 2. Blind Spot Mapping (`pages/blindspot.html`)
+### 2. Blind Spot Mapping (`experiments/blindspot.html`)
 * **Objective**: Measure, map, and analyze the visual boundary of the optic disc.
 * **Features**:
   * 8-direction radial perimetry with configurable probe size and center starting position.
   * Interactive progress tracking and real-time direction checklists.
   * Automated geometric analytics: center position (deg), width/height (deg), and estimated area (deg²).
   * Dynamic SVG polygon boundary rendering.
+
+### 3. Wagon Wheel Effect (`experiments/motion.html`)
+* **Objective**: Investigate apparent motion reversal, stroboscopic sampling, and temporal aliasing in visual motion perception.
+* **Features**:
+  * Interactive rotating spoked wheel stimulus with adjustable rotation speed, spoke count, and strobe/sampling frequency.
+  * Real-time demonstration of forward, stationary (aliased), and illusory reverse motion perception.
 
 ---
 
@@ -35,9 +41,10 @@ A modular, web-based suite of interactive vision science experiments designed fo
 
 ```text
 ├── index.html            # Main menu / project landing page
-├── pages/
+├── experiments/
 │   ├── blindspot.html    # Blind Spot Mapping experiment app
 │   └── acuity.html       # Visual Acuity experiment app
+│   └── motion.html       # Wagon Wheel Effect experiment app
 └── assets/
     ├── css/
     │   └── custom.css    # Custom styles and canvas layouts
